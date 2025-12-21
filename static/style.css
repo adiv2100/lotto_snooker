@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  font-family: system-ui, Arial, sans-serif;
+  background: #0f1115;
+  color: #e9e9e9;
+}
+
+.top {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sub {
+  margin: 6px 0 0;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.wrap {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.panel {
+  min-height: 420px;
+}
+
+
+label {
+  display: block;
+  margin: 12px 0;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.btnRow {
+  display: flex;
+  gap: 12px;        /* המרווח בין הכפתורים */
+  margin-top: 8px; /* רווח מלמעלה */
+}
+
+.serverBox {
+  margin-top: 10px;
+}
+
+#serverOut {
+  max-height: 160px;     /* גובה קבוע */
+  overflow-y: auto;     /* גלילה פנימית */
+  background: #111;
+  color: #9ef;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+
+.serverTitle {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  opacity: 0.95;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+#table {
+  width: 100%;
+  max-width: 980px;
+  height: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: #0b3b2a; /* ירוק "שולחן" */
+}
+
+.hint {
+  position: absolute;
+  bottom: 14px;
+  background: rgba(0,0,0,0.55);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  opacity: 0.9;
+}

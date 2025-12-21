@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lotto Snooker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="top">
+    <h1>🎱 Lotto Snooker</h1>
+    <p class="sub">בחירה אקראית ויזואלית (משחק/בידור בלבד)</p>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <label>
+        זווית (0–359)
+        <input id="angle" type="range" min="0" max="359" value="30" />
+        <span id="angleVal">30</span>°
+      </label>
+
+      <label>
+        עוצמה (0–100)
+        <input id="power" type="range" min="0" max="100" value="60" />
+        <span id="powerVal">60</span>
+      </label>
+
+      <div class="btnRow">
+        <button id="playBtn">▶ מכה</button>
+        <button id="resetBtn">🔄 איפוס</button>
+      </div>
+
+
+      <div class="serverBox">
+        <div class="serverTitle">תגובה מהשרת:</div>
+        <pre id="serverOut">{}</pre>
+      </div>
+    </section>
+
+    <section class="stage">
+      <canvas id="table" width="900" height="500"></canvas>
+      <div class="hint">כאן נצייר את השולחן והכדורים (Canvas)</div>
+    </section>
+  </main>
+
+  <script src="/static/game.js"></script>
+</body>
+</html>
