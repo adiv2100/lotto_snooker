@@ -1,34 +1,5 @@
 const canvas = document.getElementById("table");
 const ctx = canvas.getContext("2d");
-let CW = canvas.width;   // Canvas Width ב"פיקסלים לוגיים" (CSS px)
-let CH = canvas.height;
-
-function resizeCanvasForDevice() {
-  // קובעים גודל "לוגי" לפי רוחב המסך (שומר יחס שולחן יפה)
-  const maxW = 980;
-  const padding = 16;
-  CW = Math.min(maxW, Math.max(320, Math.floor(window.innerWidth - padding)));
-  CH = Math.floor(CW * 0.56); // יחס שולחן (אפשר לשנות ל-0.6 אם בא לך)
-
-  // dpr לחדות
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
-
-  // גודל תצוגה (CSS)
-  canvas.style.width = `${CW}px`;
-  canvas.style.height = `${CH}px`;
-
-  // גודל אמיתי (פיקסלים אמיתיים)
-  canvas.width = Math.floor(CW * dpr);
-  canvas.height = Math.floor(CH * dpr);
-
-  // כל הציורים עובדים ביחידות "לוגיות" (CSS px)
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
-// מפעילים פעם אחת + בעת שינוי גודל
-window.addEventListener("resize", resizeCanvasForDevice);
-window.addEventListener("orientationchange", resizeCanvasForDevice);
-resizeCanvasForDevice();
 
 const angleEl = document.getElementById("angle");
 const powerEl = document.getElementById("power");
@@ -37,20 +8,6 @@ const powerVal = document.getElementById("powerVal");
 const playBtn = document.getElementById("playBtn");
 const serverOut = document.getElementById("serverOut");
 const resetBtn = document.getElementById("resetBtn");
-function enforceLandscapeOverlay() {
-  const overlay = document.getElementById("rotateOverlay");
-  if (!overlay) return;
-
-  const isMobile = window.innerWidth < 900;
-  const isPortrait = window.matchMedia("(orientation: portrait)").matches;
-
-  overlay.style.display = (isMobile && isPortrait) ? "grid" : "none";
-  overlay.setAttribute("aria-hidden", (isMobile && isPortrait) ? "false" : "true");
-}
-
-window.addEventListener("resize", enforceLandscapeOverlay);
-window.addEventListener("orientationchange", enforceLandscapeOverlay);
-enforceLandscapeOverlay();
 
 function syncUI() {
   angleVal.textContent = angleEl.value;
@@ -69,28 +26,10 @@ const TABLE = {
 function tableBounds() {
   const x0 = TABLE.inset + TABLE.cushion;
   const y0 = TABLE.inset + TABLE.cushion;
-  const x1 = CW - TABLE.inset - TABLE.cushion;
-  const y1 = CH - TABLE.inset - TABLE.cushion;
+  const x1 = canvas.width - TABLE.inset - TABLE.cushion;
+  const y1 = canvas.height - TABLE.inset - TABLE.cushion;
   return { x0, y0, x1, y1 };
 }
-function drawBallLabel(ctx, x, y, text, r) {
-  const isMobile = window.innerWidth < 900;
-  const fontSize = Math.max(12, Math.round((isMobile ? 0.95 : 0.75) * r));
-
-  ctx.save();
-  ctx.font = `700 ${fontSize}px Arial`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  ctx.lineWidth = Math.max(3, Math.round(fontSize * 0.22));
-  ctx.strokeStyle = "rgba(0,0,0,0.80)";
-  ctx.strokeText(String(text), x, y);
-
-  ctx.fillStyle = "#fff";
-  ctx.fillText(String(text), x, y);
-  ctx.restore();
-}
-
 
 // -------------------- Physics constants (define first!) --------------------
 const N_BALLS = 37;
@@ -99,17 +38,14 @@ const BALL_R = 10;
 // ✅ pockets תלויים ב-BALL_R, אז POCKET_R חייב להיות אחרי BALL_R
 const POCKET_R = Math.round(BALL_R * 2.4); // ≈ 24
 
-function getPockets() {
-  return [
-    { x: 28,     y: 28,     r: POCKET_R },
-    { x: CW / 2, y: 28,     r: POCKET_R },
-    { x: CW - 28,y: 28,     r: POCKET_R },
-    { x: 28,     y: CH - 28,r: POCKET_R },
-    { x: CW / 2, y: CH - 28,r: POCKET_R },
-    { x: CW - 28,y: CH - 28,r: POCKET_R },
-  ];
-}
-
+const pockets = [
+  { x: 28, y: 28, r: POCKET_R },
+  { x: canvas.width / 2, y: 28, r: POCKET_R },
+  { x: canvas.width - 28, y: 28, r: POCKET_R },
+  { x: 28, y: canvas.height - 28, r: POCKET_R },
+  { x: canvas.width / 2, y: canvas.height - 28, r: POCKET_R },
+  { x: canvas.width - 28, y: canvas.height - 28, r: POCKET_R },
+];
 
 const POCKET_SUCK_RANGE = 70;
 const POCKET_SUCK_STRENGTH = 0.14;
@@ -154,20 +90,20 @@ function resetGame() {
 resetBtn.addEventListener("click", resetGame);
 
 function drawTable() {
-  ctx.clearRect(0, 0, CW, CH);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // מסגרת
   ctx.lineWidth = 18;
   ctx.strokeStyle = "#4b2f14";
-  ctx.strokeRect(10, 10, CW - 20, CH - 20);
+  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
 
   // בד
   ctx.fillStyle = "#0b5a3e";
-  ctx.fillRect(28, 28, CW - 56, CH - 56);
+  ctx.fillRect(28, 28, canvas.width - 56, canvas.height - 56);
 
   // כיסים
   ctx.fillStyle = "#111";
-  for (const p of getPockets()) {
+  for (const p of pockets) {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
@@ -181,24 +117,27 @@ function drawBall(b) {
 
   ctx.fill();
 
-   if (!b.cue) {
-    drawBallLabel(ctx, b.x, b.y, b.n, b.r);
+  if (!b.cue) {
+    ctx.fillStyle = "#000";
+    ctx.font = "12px system-ui";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(b.n, b.x, b.y);
   }
-
 }
 function drawGameOverOverlay() {
   ctx.save();
   ctx.fillStyle = "rgba(0,0,0,0.45)";
-  ctx.fillRect(0, 0, CW, CH);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "#fff";
   ctx.font = "bold 46px system-ui";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("כל הכבוד! 🎉", CW / 2, CH / 2 - 18);
+  ctx.fillText("כל הכבוד! 🎉", canvas.width / 2, canvas.height / 2 - 18);
 
   ctx.font = "22px system-ui";
-  
+  ctx.fillText("נשארו 6 כדורים", canvas.width / 2, canvas.height / 2 + 28);
 
   ctx.font = "16px system-ui";
   ctx.fillText("לחץ 🔄 איפוס כדי להתחיל מחדש", canvas.width / 2, canvas.height / 2 + 58);
@@ -397,7 +336,7 @@ function resolveBallCollision(a, b) {
 
 
 function checkPocket(b) {
-  for (const p of getPockets()) {
+  for (const p of pockets) {
     const dx = p.x - b.x;
     const dy = p.y - b.y;
     const d = Math.hypot(dx, dy);
