@@ -7,7 +7,10 @@ function resizeCanvasForDevice() {
   // קובעים גודל "לוגי" לפי רוחב המסך (שומר יחס שולחן יפה)
   const maxW = 980;
   const padding = 16;
-  CW = Math.min(maxW, Math.max(320, Math.floor(window.innerWidth - padding)));
+  const isMobile = window.innerWidth < 900;
+  const scale = isMobile ? 0.90 : 1; // ✅ הקטנה במובייל
+  CW = Math.min(maxW, Math.max(320, Math.floor((window.innerWidth - padding) * scale)));
+
   CH = Math.floor(CW * 0.56); // יחס שולחן (אפשר לשנות ל-0.6 אם בא לך)
 
   // dpr לחדות
@@ -23,6 +26,10 @@ function resizeCanvasForDevice() {
 
   // כל הציורים עובדים ביחידות "לוגיות" (CSS px)
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // ✅ אחרי שינוי גודל – לצייר מחדש אם הפונקציות כבר קיימות
+  if (typeof drawAll === "function") drawAll();
+  if (typeof showRemaining === "function") showRemaining();
+
 }
 
 // מפעילים פעם אחת + בעת שינוי גודל
@@ -562,6 +569,9 @@ function strikeFromUI() {
 playBtn.addEventListener("click", strikeFromUI);
 
 // start
-createBalls();
+// start
+resizeCanvasForDevice();   // ✅ קודם להתאים גודל
+createBalls();             // ✅ ואז ליצור מיקומים לפי CW/CH
 drawAll();
 showRemaining();
+
