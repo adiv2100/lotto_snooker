@@ -2,20 +2,16 @@ const canvas = document.getElementById("table");
 const ctx = canvas.getContext("2d");
 
 const angleEl = document.getElementById("angle");
-const powerEl = document.getElementById("power");
-const angleVal = document.getElementById("angleVal");
-const powerVal = document.getElementById("powerVal");
 const playBtn = document.getElementById("playBtn");
 const serverOut = document.getElementById("serverOut");
 const resetBtn = document.getElementById("resetBtn");
 
 function syncUI() {
   angleVal.textContent = angleEl.value;
-  powerVal.textContent = powerEl.value;
 }
 angleEl.addEventListener("input", syncUI);
-powerEl.addEventListener("input", syncUI);
 syncUI();
+
 
 // -------------------- Drawing helpers --------------------
 const TABLE = {
@@ -480,13 +476,12 @@ function strikeFromUI() {
   if (breakShotDone) return;
 
   const angleDeg = Number(angleEl.value);
-  const power = Number(powerEl.value);
 
   const cue = balls.find(b => b.cue);
   if (!cue || !cue.alive) return;
 
   const rad = (angleDeg * Math.PI) / 180;
-  const speed = (power / 100) * 24;
+  const speed =  14;
 
   cue.vx = Math.cos(rad) * speed;
   cue.vy = -Math.sin(rad) * speed;
